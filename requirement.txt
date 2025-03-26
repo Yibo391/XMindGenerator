@@ -1,0 +1,13 @@
+# PDF Processing
+PyPDF2==3.0.1
+pdfminer.six==20221105
+
+# Text Analysis
+nltk==3.8.1
+spacy==3.7.2
+
+# PDF Generation
+reportlab==4.0.4
+
+# Utilities
+numpy==1.24.3
