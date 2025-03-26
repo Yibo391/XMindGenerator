@@ -6,6 +6,7 @@ Main script to coordinate the conversion process
 
 import argparse
 import os
+import sys
 from src.pdf_processor import PDFProcessor
 from src.content_analyzer import ContentAnalyzer
 from src.visualizer import MindMapVisualizer
@@ -14,9 +15,25 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Convert PDF files to XMind-style mind map PDF')
     parser.add_argument('input_files', nargs='+', help='Input PDF files to process')
     parser.add_argument('-o', '--output', default='mindmap_output.pdf', help='Output PDF file name')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
     return parser.parse_args()
 
+def ensure_dependencies():
+    """Ensure necessary dependencies are installed"""
+    try:
+        import transformers
+        print("Transformers library already installed.")
+    except ImportError:
+        print("Installing required transformers library. This may take a few minutes...")
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", 
+                             "transformers", "torch", "sentencepiece"])
+        print("Transformers installed successfully.")
+
 def main():
+    # Ensure dependencies
+    ensure_dependencies()
+    
     # Parse command line arguments
     args = parse_arguments()
     
@@ -42,13 +59,15 @@ def main():
         })
     
     # Analyze content
-    print("Analyzing content...")
+    print("Analyzing content using transformer models (this may take a moment)...")
     analyzer = ContentAnalyzer()
     hierarchy = analyzer.generate_hierarchy(document_data)
     
     # Create mind map visualization
     print("Generating mind map PDF...")
     visualizer = MindMapVisualizer()
+    if args.debug:
+        visualizer.debug_mode = True
     visualizer.create_mindmap(hierarchy, args.output)
     
     print(f"Mind map PDF created: {args.output}")
